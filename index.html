@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AcademicOS - Academic Management Platform</title>
+    <!-- Link to the external stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Navigation Section -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo">
+                <!-- Make logo clickable to easily go back to home view -->
+                <h1 id="header-logo-click" style="cursor: pointer;">AcademicOS</h1>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-btn" type="button">About Me</button>
+                <button class="nav-btn settings-btn" type="button" aria-label="Settings">
+                    <svg xmlns="http://w3.org" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- VIEW A: Main Dashboard Home View Section -->
+    <div id="dashboard-view">
+        <main class="dashboard-container">
+            <!-- Welcome Hero Section -->
+            <section class="welcome-section">
+                <h2 id="welcome-greeting">Welcome 👋</h2>
+                <p>Manage your academic journey in one place.</p>
+            </section>
+
+            <!-- Global Search Bar Area -->
+            <section class="search-section">
+                <div class="search-wrapper">
+                    <svg class="search-icon" xmlns="http://w3.org" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-bar" placeholder="Search your programs..." aria-label="Search programs">
+                </div>
+            </section>
+
+            <!-- Programs Display Area -->
+            <section class="programs-section">
+                <div class="section-header">
+                    <h3 class="section-title">Your Programs</h3>
+                    <!-- Global create button shown only when programs exist in grid layout -->
+                    <button class="primary-btn hidden" id="global-create-btn" type="button">+ Create Program</button>
+                </div>
+                
+                <!-- Empty State Card Container -->
+                <div class="empty-state-card" id="empty-state">
+                    <div class="empty-state-icon">📁</div>
+                    <h4>No programs yet</h4>
+                    <p>Create your first academic program to get started.</p>
+                    <button class="primary-btn open-modal-trigger" type="button">+ Create Your First Program</button>
+                </div>
+
+                <!-- Dynamic Program Grid Area -->
+                <div class="programs-grid hidden" id="programs-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- VIEW B: Dedicated Inner Program Workspace View (New Phase 3 Section) -->
+    <div id="program-view" class="hidden">
+        <main class="dashboard-container">
+            
+            <!-- Back Button Navigation Layout Row -->
+            <nav class="breadcrumb-nav">
+                <button type="button" class="back-link-btn" id="program-back-btn">
+                    <svg xmlns="http://w3.org" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Back to Programs
+                </button>
+            </nav>
+
+            <!-- Program Title Display Meta Section -->
+            <section class="program-hero-header">
+                <div>
+                    <h2 id="view-program-name">Program Title Placeholder</h2>
+                    <span id="view-program-years-count" class="program-meta-badge">0 Academic Years</span>
+                </div>
+            </section>
+
+            <!-- Dashboard Progress Block Summary Cards -->
+            <section class="progress-hero-section">
+                <div class="progress-summary-card">
+                    <div class="progress-summary-details">
+                        <h4>Academic Progress</h4>
+                        <p id="progress-summary-counter">0 / 0 Years Completed</p>
+                    </div>
+                    <div class="progress-summary-meter">
+                        <span class="progress-percentage-text" id="progress-summary-pct">0%</span>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" id="progress-summary-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Structural Container for the Years Accordion List -->
+            <section class="years-accordion-section">
+                <h3 class="section-title">Academic Timeline</h3>
+                <div class="accordion-container" id="years-accordion-container"></div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Interactive Program Form Modal Overlay (Shared for Create/Edit Actions) -->
+    <div class="modal-overlay hidden" id="program-modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Create Program</h3>
+            <form id="program-form" novalidate>
+                <input type="hidden" id="program-id">
+                
+                <div class="form-group">
+                    <label for="program-name">Program Name</label>
+                    <input type="text" id="program-name" placeholder="e.g., Bachelor of Computer Science" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="program-years">Number of Years</label>
+                    <input type="number" id="program-years" min="1" step="1" placeholder="e.g., 4" required>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="secondary-btn" id="modal-cancel-btn">Cancel</button>
+                    <button type="submit" class="primary-btn" id="modal-submit-btn">Create Program</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Link to external Vanilla JavaScript file -->
+    <script src="script.js"></script>
+</body>
+</html>

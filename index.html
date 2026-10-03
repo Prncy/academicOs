@@ -1,140 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AcademicOS - Academic Management Platform</title>
-    <!-- Link to the external stylesheet -->
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AcademicOS</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- ERROR CATCHER (inline on purpose: it still works even if a script file
+       is missing or broken). Script-loading failures and JavaScript errors are
+       shown in the red box at the top of the page instead of being hidden. -->
+  <script>
+    (function () {
+      var problems = [];
+      function show() {
+        var box = document.getElementById("boot-problems");
+        if (!box) return;
+        box.hidden = problems.length === 0;
+        box.textContent = problems.length ? "PROBLEMS FOUND:\n" + problems.join("\n") : "";
+      }
+      window.addEventListener("error", function (event) {
+        var target = event.target;
+        if (target && target.tagName === "SCRIPT") {
+          problems.push("Could not load file: " + target.getAttribute("src"));
+        } else {
+          var file = String(event.filename || "").split("/").pop();
+          problems.push("JavaScript error: " + event.message + " (" + file + ", line " + event.lineno + ")");
+        }
+        show();
+      }, true);
+      window.AcademicOSBoot = { problems: problems, show: show };
+    })();
+  </script>
 </head>
 <body>
 
-    <!-- Header Navigation Section -->
-    <header class="main-header">
-        <div class="header-container">
-            <div class="logo">
-                <!-- Make logo clickable to easily go back to home view -->
-                <h1 id="header-logo-click" style="cursor: pointer;">AcademicOS</h1>
-            </div>
-            <nav class="nav-menu">
-                <button class="nav-btn" type="button">About Me</button>
-                <button class="nav-btn settings-btn" type="button" aria-label="Settings">
-                    <svg xmlns="http://w3.org" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                </button>
-            </nav>
-        </div>
-    </header>
+  <pre class="boot-problems" id="boot-problems" role="alert" hidden></pre>
 
-    <!-- VIEW A: Main Dashboard Home View Section -->
-    <div id="dashboard-view">
-        <main class="dashboard-container">
-            <!-- Welcome Hero Section -->
-            <section class="welcome-section">
-                <h2 id="welcome-greeting">Welcome 👋</h2>
-                <p>Manage your academic journey in one place.</p>
-            </section>
+  <!-- Skip link: lets keyboard users jump past the header. -->
+  <a class="skip-link" href="#main">Skip to content</a>
 
-            <!-- Global Search Bar Area -->
-            <section class="search-section">
-                <div class="search-wrapper">
-                    <svg class="search-icon" xmlns="http://w3.org" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="search-bar" placeholder="Search your programs..." aria-label="Search programs">
-                </div>
-            </section>
+  <header class="site-header">
+    <a class="logo" href="index.html">AcademicOS</a>
+    <nav class="site-nav" aria-label="Main">
+      <button type="button" class="nav-btn" id="settings-btn">Settings</button>
+      <button type="button" class="nav-btn" id="about-btn">About Me</button>
+    </nav>
+  </header>
 
-            <!-- Programs Display Area -->
-            <section class="programs-section">
-                <div class="section-header">
-                    <h3 class="section-title">Your Programs</h3>
-                    <!-- Global create button shown only when programs exist in grid layout -->
-                    <button class="primary-btn hidden" id="global-create-btn" type="button">+ Create Program</button>
-                </div>
-                
-                <!-- Empty State Card Container -->
-                <div class="empty-state-card" id="empty-state">
-                    <div class="empty-state-icon">📁</div>
-                    <h4>No programs yet</h4>
-                    <p>Create your first academic program to get started.</p>
-                    <button class="primary-btn open-modal-trigger" type="button">+ Create Your First Program</button>
-                </div>
+  <main id="main" class="container">
 
-                <!-- Dynamic Program Grid Area -->
-                <div class="programs-grid hidden" id="programs-grid"></div>
-            </section>
-        </main>
+    <!-- Welcome: the greeting text is filled in by ui-home.js. -->
+    <section class="welcome" aria-labelledby="greeting">
+      <h1 id="greeting">Good day 👋</h1>
+      <p class="tagline">Manage your academic journey in one place.</p>
+    </section>
+
+    <!-- Search + new program button -->
+    <div class="search-row">
+      <div class="search">
+        <label class="visually-hidden" for="program-search">Search your programs</label>
+        <input type="search" id="program-search" placeholder="Search your programs...">
+      </div>
+      <button type="button" class="btn-primary" id="new-program-btn">+ New Program</button>
     </div>
 
-    <!-- VIEW B: Dedicated Inner Program Workspace View (New Phase 3 Section) -->
-    <div id="program-view" class="hidden">
-        <main class="dashboard-container">
-            
-            <!-- Back Button Navigation Layout Row -->
-            <nav class="breadcrumb-nav">
-                <button type="button" class="back-link-btn" id="program-back-btn">
-                    <svg xmlns="http://w3.org" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                    Back to Programs
-                </button>
-            </nav>
+    <section class="programs" aria-labelledby="programs-heading">
+      <h2 class="visually-hidden" id="programs-heading">Your programs</h2>
 
-            <!-- Program Title Display Meta Section -->
-            <section class="program-hero-header">
-                <div>
-                    <h2 id="view-program-name">Program Title Placeholder</h2>
-                    <span id="view-program-years-count" class="program-meta-badge">0 Academic Years</span>
-                </div>
-            </section>
+      <!-- Program cards are rendered into this grid by ui-home.js. -->
+      <div class="programs-grid" id="programs-grid" hidden></div>
 
-            <!-- Dashboard Progress Block Summary Cards -->
-            <section class="progress-hero-section">
-                <div class="progress-summary-card">
-                    <div class="progress-summary-details">
-                        <h4>Academic Progress</h4>
-                        <p id="progress-summary-counter">0 / 0 Years Completed</p>
-                    </div>
-                    <div class="progress-summary-meter">
-                        <span class="progress-percentage-text" id="progress-summary-pct">0%</span>
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill" id="progress-summary-bar"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+      <!-- Shown when a search matches nothing. -->
+      <p class="no-results" id="no-results" role="status" hidden>No programs match your search.</p>
 
-            <!-- Structural Container for the Years Accordion List -->
-            <section class="years-accordion-section">
-                <h3 class="section-title">Academic Timeline</h3>
-                <div class="accordion-container" id="years-accordion-container"></div>
-            </section>
+      <!-- Empty state: shown when the student has no programs. -->
+      <div class="empty-state" id="empty-state">
+        <h2>No programs yet</h2>
+        <p>Create your first academic program to get started.</p>
+        <button type="button" class="btn-primary" id="create-program-btn">+ Create Your First Program</button>
+      </div>
+    </section>
 
-        </main>
+  </main>
+
+  <!-- First-run prompt: asks for the student's name once. -->
+  <dialog id="name-dialog" aria-labelledby="name-dialog-title">
+    <form id="name-form" class="dialog-body">
+      <h2 id="name-dialog-title">Welcome to AcademicOS</h2>
+      <p>What should we call you?</p>
+      <label class="visually-hidden" for="name-input">Your name</label>
+      <input type="text" id="name-input" maxlength="50" autocomplete="given-name" placeholder="Your name">
+      <p class="form-error" id="name-error" role="alert" hidden>Enter a name to continue.</p>
+      <button type="submit" class="btn-primary">Save name</button>
+    </form>
+  </dialog>
+
+  <!-- Create / Edit program form (one dialog, two modes). "novalidate" lets OUR
+       error messages show instead of the browser's default ones. -->
+  <dialog id="program-dialog" aria-labelledby="program-form-title">
+    <form id="program-form" class="dialog-body" novalidate>
+      <h2 id="program-form-title">Create a program</h2>
+
+      <div class="field">
+        <label for="program-name">Program name</label>
+        <input type="text" id="program-name" maxlength="80" autocomplete="off" placeholder="e.g. Bachelor of Computer Science">
+        <p class="form-error" id="program-name-error" role="alert" hidden></p>
+      </div>
+
+      <div class="field" id="years-field">
+        <label for="program-years">Number of academic years (1 to 8)</label>
+        <input type="number" id="program-years" min="1" max="8" step="1" value="4">
+        <p class="form-error" id="program-years-error" role="alert" hidden></p>
+      </div>
+
+      <p class="form-error" id="program-general-error" role="alert" hidden></p>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn-secondary" id="program-cancel">Cancel</button>
+        <button type="submit" class="btn-primary" id="program-submit">Create program</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Delete confirmation -->
+  <dialog id="delete-dialog" aria-labelledby="delete-title">
+    <div class="dialog-body">
+      <h2 id="delete-title">Delete this program?</h2>
+      <p><strong id="delete-name"></strong> and all its years, courses and assessments will be permanently deleted. This cannot be undone.</p>
+      <div class="dialog-actions">
+        <button type="button" class="btn-secondary" id="delete-cancel">Cancel</button>
+        <button type="button" class="btn-danger" id="delete-confirm">Delete program</button>
+      </div>
     </div>
+  </dialog>
 
-    <!-- Interactive Program Form Modal Overlay (Shared for Create/Edit Actions) -->
-    <div class="modal-overlay hidden" id="program-modal">
-        <div class="modal-content">
-            <h3 id="modal-title">Create Program</h3>
-            <form id="program-form" novalidate>
-                <input type="hidden" id="program-id">
-                
-                <div class="form-group">
-                    <label for="program-name">Program Name</label>
-                    <input type="text" id="program-name" placeholder="e.g., Bachelor of Computer Science" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="program-years">Number of Years</label>
-                    <input type="number" id="program-years" min="1" step="1" placeholder="e.g., 4" required>
-                </div>
-                
-                <div class="modal-actions">
-                    <button type="button" class="secondary-btn" id="modal-cancel-btn">Cancel</button>
-                    <button type="submit" class="primary-btn" id="modal-submit-btn">Create Program</button>
-                </div>
-            </form>
-        </div>
+  <!-- General pop-up for "coming soon" messages. Text is filled in by app.js. -->
+  <dialog id="info-dialog" aria-labelledby="info-title">
+    <div class="dialog-body">
+      <h2 id="info-title"></h2>
+      <p id="info-message"></p>
+      <button type="button" class="btn-primary" id="info-close">Close</button>
     </div>
+  </dialog>
 
-    <!-- Link to external Vanilla JavaScript file -->
-    <script src="script.js"></script>
+  <!-- Scripts load in a fixed order: each file may only use files above it. -->
+  <script src="js/datastore.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/years.js"></script>
+  <script src="js/programs.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ui-home.js"></script>
+  <script>window.AcademicOSBoot.show();</script>
 </body>
 </html>

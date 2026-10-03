@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AcademicOS diagnostics</title>
+
+  <!-- ERROR CATCHER (inline on purpose: it still works even if a script file
+       is missing or broken). It records script-loading failures and
+       JavaScript errors so they are shown on the page, not hidden. -->
+  <script>
+    (function () {
+      var problems = [];
+      function show() {
+        var box = document.getElementById("boot-problems");
+        if (!box) return;
+        box.hidden = problems.length === 0;
+        box.textContent = problems.length ? "PROBLEMS FOUND:\n" + problems.join("\n") : "";
+      }
+      window.addEventListener("error", function (event) {
+        var target = event.target;
+        if (target && target.tagName === "SCRIPT") {
+          problems.push("Could not load file: " + target.getAttribute("src"));
+        } else {
+          var file = String(event.filename || "").split("/").pop();
+          problems.push("JavaScript error: " + event.message + " (" + file + ", line " + event.lineno + ")");
+        }
+        show();
+      }, true); // "true" also catches files that fail to load
+      window.AcademicOSBoot = { problems: problems, show: show };
+    })();
+  </script>
+
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1 { font-size: 1.4rem; }
+    pre { background: #f3f4f1; padding: 1rem; border-radius: 8px; white-space: pre-wrap; }
+    #boot-problems { background: #fde8e8; color: #7f1616; border: 2px solid #9b1c1c; }
+    button { font: inherit; padding: 0.5rem 1rem; margin: 0 0.5rem 0.5rem 0; cursor: pointer; }
+    dialog { padding: 1.5rem; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+  <h1>AcademicOS diagnostics</h1>
+  <p>This page tests that the files load and the basics work in YOUR browser.
+     Open this page any time something seems broken.</p>
+
+  <pre id="boot-problems" role="alert" hidden></pre>
+
+  <h2>Results</h2>
+  <pre id="boot-status">Running checks... (if this text never changes, JavaScript is not running)</pre>
+
+  <h2>Interaction tests</h2>
+  <button type="button" id="click-test">Click test</button>
+  <button type="button" id="dialog-test">Pop-up test</button>
+  <p id="click-result">Not clicked yet.</p>
+
+  <dialog id="test-dialog">
+    <p>The pop-up works.</p>
+    <button type="button" id="dialog-close">Close</button>
+  </dialog>
+
+  <!-- Scripts load in a fixed order: each file may only use files above it. -->
+  <script src="js/datastore.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/years.js"></script>
+  <script src="js/programs.js"></script>
+
+  <!-- The self-check itself. -->
+  <script>
+    (function () {
+      var lines = [];
+      var failures = 0;
+
+      function check(label, test) {
+        try {
+          var detail = test();
+          lines.push("✔ " + label + (detail ? ": " + detail : ""));
+        } catch (error) {
+          failures++;
+          lines.push("✘ " + label + ": " + error.message);
+        }
+      }
+
+      check("Page opened via", function () { return location.protocol; });
+      check("DataStore loaded", function () {
+        if (typeof DataStore === "undefined") throw new Error("DataStore is missing");
+      });
+      check("Utils loaded", function () {
+        if (typeof Utils === "undefined") throw new Error("Utils is missing");
+      });
+      check("localStorage usable", function () {
+        if (!DataStore.isAvailable()) throw new Error("browser blocks localStorage");
+      });
+      check("Data loads", function () {
+        var data = DataStore.load();
+        return "schemaVersion " + data.schemaVersion + ", " + data.programs.length + " program(s), " +
+               data.gradingScale.bands.length + " grade bands";
+      });
+      check("Data saves", function () {
+        if (!DataStore.save(DataStore.load())) throw new Error("save returned false");
+      });
+      check("ID generator", function () {
+        var a = DataStore.generateId(), b = DataStore.generateId();
+        if (a === b) throw new Error("IDs are not unique");
+        return a;
+      });
+      check("escapeHtml", function () {
+        var result = Utils.escapeHtml("<b>&\"'");
+        if (result !== "&lt;b&gt;&amp;&quot;&#39;") throw new Error("got " + result);
+        return result;
+      });
+      check("Years loaded", function () {
+        if (typeof Years === "undefined") throw new Error("Years is missing");
+      });
+      check("Programs loaded", function () {
+        if (typeof Programs === "undefined") throw new Error("Programs is missing");
+      });
+      check("Programs checks (read-only, saves nothing)", function () {
+        if (Programs.validateName("   ", null) === "") throw new Error("blank name was accepted");
+        if (Programs.validateYears(9) === "") throw new Error("9 years was accepted");
+        if (Programs.validateYears(4) !== "") throw new Error("4 years was rejected");
+        var years = Years.createForProgram("test", 4).map(function (y) { return y.includeInGPA; });
+        if (years.join() !== "false,false,true,true") throw new Error("year defaults wrong: " + years.join());
+        return "validation and year defaults OK";
+      });
+      check("Greeting", function () { return Utils.getGreeting(); });
+      check("Pop-up (dialog) support", function () {
+        if (typeof HTMLDialogElement === "undefined" || typeof HTMLDialogElement.prototype.showModal !== "function") {
+          throw new Error("this browser does not support <dialog>");
+        }
+      });
+
+      lines.push("");
+      lines.push(failures === 0 ? "ALL CHECKS PASSED" : failures + " CHECK(S) FAILED");
+      document.getElementById("boot-status").textContent = lines.join("\n");
+
+      // Interaction tests: do clicks and pop-ups work in this browser?
+      var clicks = 0;
+      document.getElementById("click-test").addEventListener("click", function () {
+        clicks++;
+        document.getElementById("click-result").textContent = "Click works. Clicked " + clicks + " time(s).";
+      });
+      document.getElementById("dialog-test").addEventListener("click", function () {
+        document.getElementById("test-dialog").showModal();
+      });
+      document.getElementById("dialog-close").addEventListener("click", function () {
+        document.getElementById("test-dialog").close();
+      });
+
+      window.AcademicOSBoot.show(); // show any problems caught so far
+    })();
+  </script>
+</body>
+</html>

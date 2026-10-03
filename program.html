@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Program · AcademicOS</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- ERROR CATCHER (same as index.html): script-loading failures and
+       JavaScript errors are shown in the red box instead of being hidden. -->
+  <script>
+    (function () {
+      var problems = [];
+      function show() {
+        var box = document.getElementById("boot-problems");
+        if (!box) return;
+        box.hidden = problems.length === 0;
+        box.textContent = problems.length ? "PROBLEMS FOUND:\n" + problems.join("\n") : "";
+      }
+      window.addEventListener("error", function (event) {
+        var target = event.target;
+        if (target && target.tagName === "SCRIPT") {
+          problems.push("Could not load file: " + target.getAttribute("src"));
+        } else {
+          var file = String(event.filename || "").split("/").pop();
+          problems.push("JavaScript error: " + event.message + " (" + file + ", line " + event.lineno + ")");
+        }
+        show();
+      }, true);
+      window.AcademicOSBoot = { problems: problems, show: show };
+    })();
+  </script>
+</head>
+<body>
+
+  <pre class="boot-problems" id="boot-problems" role="alert" hidden></pre>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="logo" href="index.html">AcademicOS</a>
+    <nav class="site-nav" aria-label="Main">
+      <button type="button" class="nav-btn" id="settings-btn">Settings</button>
+      <button type="button" class="nav-btn" id="about-btn">About Me</button>
+    </nav>
+  </header>
+
+  <main id="main" class="container">
+
+    <a class="back-link" href="index.html">&larr; Back to programs</a>
+
+    <!-- The program: filled in by ui-program.js from the ?id= in the address. -->
+    <section id="program-view" aria-labelledby="program-title" hidden>
+      <h1 id="program-title" class="program-title"></h1>
+      <p class="tagline" id="program-subtitle"></p>
+
+      <h2 class="visually-hidden">Academic progress</h2>
+      <dl class="stats">
+        <div class="stat"><dt>Years completed</dt><dd id="stat-years">—</dd></div>
+        <div class="stat"><dt>Total courses</dt><dd id="stat-courses">—</dd></div>
+        <div class="stat"><dt>Overall GPA</dt><dd id="stat-gpa">—</dd></div>
+      </dl>
+
+      <div class="progress-wrap">
+        <div class="progress" id="progress" role="progressbar" aria-label="Academic progress"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p class="progress-label" id="progress-label"></p>
+      </div>
+
+      <h2 class="section-title">Academic years</h2>
+      <div id="years-list"></div>
+    </section>
+
+    <!-- Shown when the address has no id, or the program does not exist. -->
+    <section id="not-found" class="empty-state" hidden>
+      <h2>Program not found</h2>
+      <p>This program does not exist, or it was deleted.</p>
+      <a class="btn-primary" href="index.html">Back to programs</a>
+    </section>
+
+  </main>
+
+  <!-- General pop-up (used by app.js for messages). -->
+  <dialog id="info-dialog" aria-labelledby="info-title">
+    <div class="dialog-body">
+      <h2 id="info-title"></h2>
+      <p id="info-message"></p>
+      <button type="button" class="btn-primary" id="info-close">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Scripts load in a fixed order: each file may only use files above it. -->
+  <script src="js/datastore.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/years.js"></script>
+  <script src="js/programs.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ui-program.js"></script>
+  <script>window.AcademicOSBoot.show();</script>
+</body>
+</html>

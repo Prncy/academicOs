@@ -66,6 +66,7 @@
   <script src="js/utils.js"></script>
   <script src="js/years.js"></script>
   <script src="js/programs.js"></script>
+  <script src="js/courses.js"></script>
 
   <!-- The self-check itself. -->
   <script>
@@ -124,6 +125,17 @@
         var years = Years.createForProgram("test", 4).map(function (y) { return y.includeInGPA; });
         if (years.join() !== "false,false,true,true") throw new Error("year defaults wrong: " + years.join());
         return "validation and year defaults OK";
+      });
+      check("Courses loaded", function () {
+        if (typeof Courses === "undefined") throw new Error("Courses is missing");
+      });
+      check("Courses checks (read-only, saves nothing)", function () {
+        var good = { code: "CS350", name: "OOP", caWeight: 40, examWeight: 60, credits: "" };
+        if (Object.keys(Courses.validate(good, "x", null)).length !== 0) throw new Error("a valid course was rejected");
+        if (!Courses.validate({ code: "", name: "OOP", caWeight: 40, examWeight: 60, credits: "" }, "x", null).code) throw new Error("blank code accepted");
+        if (!Courses.validate({ code: "A", name: "B", caWeight: 50, examWeight: 60, credits: "" }, "x", null).weights) throw new Error("weights 50+60 accepted");
+        if (!Courses.validate({ code: "A", name: "B", caWeight: 40, examWeight: 60, credits: "-2" }, "x", null).credits) throw new Error("negative credits accepted");
+        return "validation OK";
       });
       check("Greeting", function () { return Utils.getGreeting(); });
       check("Pop-up (dialog) support", function () {

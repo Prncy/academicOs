@@ -86,6 +86,8 @@ Homepage, then Program, then Year (expands inside the program page), then Course
 - **FR-A1** Add, edit and delete assignments and tests with a title, a score and a maximum mark.
 - **FR-A2** A score must be between 0 and the maximum; the maximum must be greater than 0.
 - **FR-A3** Assessments need not be out of 100.
+- **FR-A4** **DECISION (added during Phase 6):** each assessment has an optional date (due date for an assignment, test date for a test), stored as `YYYY-MM-DD`.
+- **FR-A5** **ASSUMPTION:** a score may be left blank for work not yet marked; titles are unique within a course and type; dates must be real dates between the years 2000 and 2100.
 
 ### 3.6 CA and exam (Phase 7)
 - **FR-CA1** The student defines the CA/Exam split per course (e.g. 40/60).
@@ -161,7 +163,7 @@ Each phase is built in stages. After every stage the project owner tests in a re
 ---
 
 ## 8. Future Ideas (not v1)
-Student budget tracker, academic task manager, messaging integration. They must not influence the v1 architecture.
+Student budget tracker, academic task manager, messaging integration, and a homepage calendar / upcoming-deadlines view. The calendar needs no new stored data: it reads the assessment dates added in FR-A4. They must not influence the v1 architecture.
 
 ---
 

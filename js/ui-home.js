@@ -46,7 +46,7 @@ const HomeUI = (function () {
           "<div><dt>GPA</dt><dd>—</dd></div>" +
         "</dl>" +
         '<div class="card-actions">' +
-          '<button type="button" class="btn-primary btn-small" data-action="open">Open Program</button>' +
+          '<a class="btn-primary btn-small" href="program.html?id=' + encodeURIComponent(program.id) + '" aria-label="Open ' + name + '">Open Program</a>' +
           '<button type="button" class="btn-secondary btn-small" data-action="edit" aria-label="Edit ' + name + '">Edit</button>' +
           '<button type="button" class="btn-danger btn-small" data-action="delete" aria-label="Delete ' + name + '">Delete</button>' +
         "</div>" +
@@ -85,9 +85,7 @@ const HomeUI = (function () {
     }
 
     const action = button.dataset.action;
-    if (action === "open") {
-      App.showInfo("Coming in Phase 3", "The program page with its academic years is built in the next phase.");
-    } else if (action === "edit") {
+    if (action === "edit") {
       openProgramForm(program);
     } else if (action === "delete") {
       openDeleteDialog(program);

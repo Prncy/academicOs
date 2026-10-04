@@ -66,6 +66,8 @@
   <script src="js/utils.js"></script>
   <script src="js/years.js"></script>
   <script src="js/programs.js"></script>
+  <script src="js/courses.js"></script>
+  <script src="js/assessments.js"></script>
 
   <!-- The self-check itself. -->
   <script>
@@ -124,6 +126,28 @@
         var years = Years.createForProgram("test", 4).map(function (y) { return y.includeInGPA; });
         if (years.join() !== "false,false,true,true") throw new Error("year defaults wrong: " + years.join());
         return "validation and year defaults OK";
+      });
+      check("Courses loaded", function () {
+        if (typeof Courses === "undefined") throw new Error("Courses is missing");
+      });
+      check("Courses checks (read-only, saves nothing)", function () {
+        var good = { code: "CS350", name: "OOP", caWeight: 40, examWeight: 60, credits: "" };
+        if (Object.keys(Courses.validate(good, "x", null)).length !== 0) throw new Error("a valid course was rejected");
+        if (!Courses.validate({ code: "", name: "OOP", caWeight: 40, examWeight: 60, credits: "" }, "x", null).code) throw new Error("blank code accepted");
+        if (!Courses.validate({ code: "A", name: "B", caWeight: 50, examWeight: 60, credits: "" }, "x", null).weights) throw new Error("weights 50+60 accepted");
+        if (!Courses.validate({ code: "A", name: "B", caWeight: 40, examWeight: 60, credits: "-2" }, "x", null).credits) throw new Error("negative credits accepted");
+        return "validation OK";
+      });
+      check("Assessments loaded", function () {
+        if (typeof Assessments === "undefined") throw new Error("Assessments is missing");
+      });
+      check("Assessments checks (read-only, saves nothing)", function () {
+        var good = { title: "Assignment 1", score: "15", maxScore: "20", weight: "", date: "2026-03-14" };
+        if (Object.keys(Assessments.validate(good, "x", "assignment", null)).length !== 0) throw new Error("a valid assignment was rejected");
+        if (!Assessments.validate({ title: "A", score: "25", maxScore: "20", weight: "", date: "" }, "x", "test", null).score) throw new Error("score above max accepted");
+        if (!Assessments.validate({ title: "A", score: "", maxScore: "0", weight: "", date: "" }, "x", "test", null).maxScore) throw new Error("max 0 accepted");
+        if (!Assessments.validate({ title: "A", score: "", maxScore: "20", weight: "", date: "2026-02-30" }, "x", "test", null).date) throw new Error("2026-02-30 accepted");
+        return "validation OK";
       });
       check("Greeting", function () { return Utils.getGreeting(); });
       check("Pop-up (dialog) support", function () {

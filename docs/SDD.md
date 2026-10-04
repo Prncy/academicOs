@@ -86,10 +86,10 @@ One localStorage key (`academicos:data`) holds one object. Entities are flat arr
   years:        [ { id, programId, yearNumber, includeInGPA, completedOverride } ],
   courses:      [ { id, yearId, code, name, credits, caWeight, examWeight,
                     caMode, examScore, examMax } ],
-  assessments:  [ { id, courseId, type, title, score, maxScore, weight } ]
+  assessments:  [ { id, courseId, type, title, score, maxScore, weight, date } ]
 }
 ```
-- `completedOverride`: null means automatic. `credits`, `examScore`, `examMax`, `score`, `weight` may be null.
+- `completedOverride`: null means automatic. `credits`, `examScore`, `examMax`, `score`, `weight`, `date` may be null. `date` is `YYYY-MM-DD`; older records without it are read as null, so no schema version bump is needed.
 - `caMode` is `"pooled"` or `"weighted"`. `type` is `"assignment"` or `"test"`.
 - The exam belongs to its course (one per course), so it is part of the course record.
 

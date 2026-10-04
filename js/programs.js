@@ -130,6 +130,32 @@ const Programs = (function () {
     return { ok: true };
   }
 
+  /* ---------- One program and its numbers ---------- */
+
+  // Finds one program by id, or null if it does not exist.
+  function getById(programId) {
+    return getAll().find(function (p) { return p.id === programId; }) || null;
+  }
+
+  // Numbers for the program page. Everything is COUNTED from the saved data,
+  // never stored, so it can never go out of date.
+  function getStats(programId) {
+    const years = Years.getForProgram(programId);
+    const yearIds = years.map(function (y) { return y.id; });
+    const totalCourses = DataStore.load().courses.filter(function (c) {
+      return yearIds.includes(c.yearId);
+    }).length;
+    const yearsCompleted = years.filter(function (y) { return Years.isCompleted(y); }).length;
+    const totalYears = years.length;
+
+    return {
+      totalYears: totalYears,
+      yearsCompleted: yearsCompleted,
+      totalCourses: totalCourses,
+      progressPercent: totalYears === 0 ? 0 : Math.round((yearsCompleted / totalYears) * 100),
+    };
+  }
+
   /* ---------- Search ---------- */
 
   // Case-insensitive "contains" match on the program name.
@@ -142,6 +168,6 @@ const Programs = (function () {
 
   return {
     MAX_NAME_LENGTH, MIN_YEARS, MAX_YEARS,
-    validateName, validateYears, getAll, create, getYearCount, rename, remove, search,
+    validateName, validateYears, getAll, getById, getStats, create, getYearCount, rename, remove, search,
   };
 })();

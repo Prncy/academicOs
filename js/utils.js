@@ -31,5 +31,20 @@ const Utils = (function () {
     return "Good evening";
   }
 
-  return { escapeHtml, getQueryParam, getGreeting };
+  // How credits are shown: "3 credits", "1 credit", or "No credits set".
+  function formatCredits(credits) {
+    if (credits === null || credits === undefined) return "No credits set";
+    return credits + (credits === 1 ? " credit" : " credits");
+  }
+
+  // Turns "2026-03-14" into "14 Mar 2026". We split the text ourselves instead
+  // of using new Date(), because Date can shift the day by timezone.
+  function formatDate(isoDate) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(isoDate));
+    if (!match) return String(isoDate);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return Number(match[3]) + " " + months[Number(match[2]) - 1] + " " + match[1];
+  }
+
+  return { escapeHtml, getQueryParam, getGreeting, formatCredits, formatDate };
 })();

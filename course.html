@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Course · AcademicOS</title>
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- ERROR CATCHER (same as the other pages): script-loading failures and
+       JavaScript errors are shown in the red box instead of being hidden. -->
+  <script>
+    (function () {
+      var problems = [];
+      function show() {
+        var box = document.getElementById("boot-problems");
+        if (!box) return;
+        box.hidden = problems.length === 0;
+        box.textContent = problems.length ? "PROBLEMS FOUND:\n" + problems.join("\n") : "";
+      }
+      window.addEventListener("error", function (event) {
+        var target = event.target;
+        if (target && target.tagName === "SCRIPT") {
+          problems.push("Could not load file: " + target.getAttribute("src"));
+        } else {
+          var file = String(event.filename || "").split("/").pop();
+          problems.push("JavaScript error: " + event.message + " (" + file + ", line " + event.lineno + ")");
+        }
+        show();
+      }, true);
+      window.AcademicOSBoot = { problems: problems, show: show };
+    })();
+  </script>
+</head>
+<body>
+
+  <pre class="boot-problems" id="boot-problems" role="alert" hidden></pre>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="logo" href="index.html">AcademicOS</a>
+    <nav class="site-nav" aria-label="Main">
+      <button type="button" class="nav-btn" id="settings-btn">Settings</button>
+      <button type="button" class="nav-btn" id="about-btn">About Me</button>
+    </nav>
+  </header>
+
+  <main id="main" class="container">
+
+    <!-- The text and link are filled in by ui-course.js. -->
+    <a class="back-link" id="back-link" href="index.html">&larr; Back to programs</a>
+
+    <!-- The course: filled in by ui-course.js from the ?id= in the address. -->
+    <section id="course-view" aria-labelledby="course-title" hidden>
+      <p class="course-code-label" id="course-code"></p>
+      <h1 id="course-title" class="program-title"></h1>
+      <p class="tagline" id="course-subtitle"></p>
+      <p class="course-structure" id="course-structure"></p>
+
+      <!-- Course summary (SRS FR-C3). The values arrive in Phases 7 to 9. -->
+      <h2 class="section-title">Course summary</h2>
+      <dl class="stats">
+        <div class="stat"><dt>Current CA</dt><dd>—</dd></div>
+        <div class="stat"><dt>Exam score</dt><dd>—</dd></div>
+        <div class="stat"><dt>Final percentage</dt><dd>—</dd></div>
+        <div class="stat"><dt>Grade</dt><dd>—</dd></div>
+        <div class="stat"><dt>GPA</dt><dd>—</dd></div>
+      </dl>
+
+      <div class="panels" id="assessment-panels">
+        <section class="panel" aria-labelledby="assignments-heading">
+          <div class="panel-header">
+            <h2 id="assignments-heading">Assignments <span class="count-badge" id="assignments-count">0</span></h2>
+            <button type="button" class="btn-primary btn-small" id="add-assignment-btn">+ Add Assignment</button>
+          </div>
+          <div id="assignments-list"></div>
+        </section>
+        <section class="panel" aria-labelledby="tests-heading">
+          <div class="panel-header">
+            <h2 id="tests-heading">Tests <span class="count-badge" id="tests-count">0</span></h2>
+            <button type="button" class="btn-primary btn-small" id="add-test-btn">+ Add Test</button>
+          </div>
+          <div id="tests-list"></div>
+        </section>
+      </div>
+    </section>
+        <section class="panel" aria-labelledby="tests-heading">
+          <h2 id="tests-heading">Tests <span class="count-badge" id="tests-count">0</span></h2>
+          <p class="empty-courses" id="tests-message"></p>
+        </section>
+      </div>
+    </section>
+
+    <!-- Shown when the address has no id, or the course does not exist. -->
+    <section id="not-found" class="empty-state" hidden>
+      <h2>Course not found</h2>
+      <p>This course does not exist, or it was deleted.</p>
+      <a class="btn-primary" href="index.html">Back to programs</a>
+    </section>
+
+  </main>
+
+  <!-- Add / Edit assignment or test (one dialog, two modes). "novalidate" lets
+       OUR error messages show instead of the browser's default ones. -->
+  <dialog id="assessment-dialog" aria-labelledby="assessment-form-title">
+    <form id="assessment-form" class="dialog-body" novalidate>
+      <h2 id="assessment-form-title">Add assignment</h2>
+
+      <div class="field">
+        <label for="as-title">Title</label>
+        <input type="text" id="as-title" maxlength="60" autocomplete="off" placeholder="e.g. Assignment 1">
+        <p class="form-error" id="as-title-error" role="alert" hidden></p>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="as-score">Score (optional)</label>
+          <input type="number" id="as-score" min="0" step="any" placeholder="e.g. 15">
+          <p class="form-error" id="as-score-error" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label for="as-max">Maximum mark</label>
+          <input type="number" id="as-max" min="0" step="any" placeholder="e.g. 20">
+          <p class="form-error" id="as-max-error" role="alert" hidden></p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="as-date" id="as-date-label">Due date (optional)</label>
+        <input type="date" id="as-date">
+        <p class="form-error" id="as-date-error" role="alert" hidden></p>
+      </div>
+
+      <!-- Only shown for courses that use "weighted" CA (Phase 7). -->
+      <div class="field" id="weight-field" hidden>
+        <label for="as-weight">Weight (marks within the CA)</label>
+        <input type="number" id="as-weight" min="0" max="100" step="any">
+        <p class="form-error" id="as-weight-error" role="alert" hidden></p>
+      </div>
+
+      <p class="form-error" id="as-general-error" role="alert" hidden></p>
+
+      <div class="dialog-actions">
+        <button type="button" class="btn-secondary" id="as-cancel">Cancel</button>
+        <button type="submit" class="btn-primary" id="as-submit">Add assignment</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Delete confirmation -->
+  <dialog id="delete-as-dialog" aria-labelledby="delete-as-title">
+    <div class="dialog-body">
+      <h2 id="delete-as-title">Delete this item?</h2>
+      <p><strong id="delete-as-name"></strong> will be permanently deleted. This cannot be undone.</p>
+      <div class="dialog-actions">
+        <button type="button" class="btn-secondary" id="delete-as-cancel">Cancel</button>
+        <button type="button" class="btn-danger" id="delete-as-confirm">Delete</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- General pop-up (used by app.js for messages). -->
+  <dialog id="info-dialog" aria-labelledby="info-title">
+    <div class="dialog-body">
+      <h2 id="info-title"></h2>
+      <p id="info-message"></p>
+      <button type="button" class="btn-primary" id="info-close">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Scripts load in a fixed order: each file may only use files above it. -->
+  <script src="js/datastore.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/years.js"></script>
+  <script src="js/programs.js"></script>
+  <script src="js/courses.js"></script>
+  <script src="js/assessments.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ui-course.js"></script>
+  <script>window.AcademicOSBoot.show();</script>
+</body>
+</html>

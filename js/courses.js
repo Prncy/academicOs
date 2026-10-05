@@ -127,6 +127,7 @@ const Courses = (function () {
       caMode: "pooled", // default CA model (SRS D1); chosen per course in Phase 7
       examScore: null,
       examMax: null,
+      examDate: null,
     };
 
     data.courses.push(course);
@@ -155,6 +156,72 @@ const Courses = (function () {
     return { ok: true, course: course };
   }
 
+  /* ---------- Exam details and CA method (Phase 7) ---------- */
+
+  const EXAM_MIN_YEAR = 2000;
+  const EXAM_MAX_YEAR = 2100;
+  const MAX_EXAM_MARK = 10000;
+
+  function isBlank(value) {
+    return value === null || value === undefined || String(value).trim() === "";
+  }
+
+  // Checks the exam form. Score and maximum may both be blank (nothing entered
+  // yet); a score needs a maximum; the score cannot be above the maximum.
+  function validateExam(fields) {
+    const errors = {};
+    const max = isBlank(fields.examMax) ? null : Number(fields.examMax);
+    const score = isBlank(fields.examScore) ? null : Number(fields.examScore);
+
+    if (max !== null && (!Number.isFinite(max) || max <= 0 || max > MAX_EXAM_MARK)) {
+      errors.examMax = "Maximum mark must be a number above 0 (up to " + MAX_EXAM_MARK + "), or leave it blank.";
+    }
+    if (score !== null) {
+      if (!Number.isFinite(score) || score < 0) {
+        errors.examScore = "Score must be a number from 0 upward, or leave it blank.";
+      } else if (max === null) {
+        errors.examMax = "Enter the exam's maximum mark to go with the score.";
+      } else if (!errors.examMax && score > max) {
+        errors.examScore = "Score cannot be more than the maximum mark (" + max + ").";
+      }
+    }
+    if (!isBlank(fields.examDate) && !Utils.isValidDate(String(fields.examDate).trim(), EXAM_MIN_YEAR, EXAM_MAX_YEAR)) {
+      errors.examDate = "Enter a real date (year " + EXAM_MIN_YEAR + " to " + EXAM_MAX_YEAR + "), or leave it blank.";
+    }
+    return errors;
+  }
+
+  // Saves the exam score, maximum mark and date. Blank boxes are stored as null.
+  function updateExam(courseId, fields) {
+    const data = DataStore.load();
+    const course = data.courses.find(function (c) { return c.id === courseId; });
+    if (!course) return { ok: false, errors: { general: "That course no longer exists." } };
+
+    const errors = validateExam(fields);
+    if (Object.keys(errors).length > 0) return { ok: false, errors: errors };
+
+    course.examScore = isBlank(fields.examScore) ? null : Number(fields.examScore);
+    course.examMax = isBlank(fields.examMax) ? null : Number(fields.examMax);
+    course.examDate = isBlank(fields.examDate) ? null : String(fields.examDate).trim();
+
+    if (!DataStore.save(data)) return { ok: false, errors: { general: SAVE_FAILED } };
+    return { ok: true, course: course };
+  }
+
+  // Chooses how this course's CA is worked out: "pooled" or "weighted".
+  function setCaMode(courseId, mode) {
+    if (mode !== "pooled" && mode !== "weighted") {
+      return { ok: false, errors: { general: "Unknown CA method." } };
+    }
+    const data = DataStore.load();
+    const course = data.courses.find(function (c) { return c.id === courseId; });
+    if (!course) return { ok: false, errors: { general: "That course no longer exists." } };
+
+    course.caMode = mode;
+    if (!DataStore.save(data)) return { ok: false, errors: { general: SAVE_FAILED } };
+    return { ok: true, course: course };
+  }
+
   /* ---------- Delete (cascade) ---------- */
 
   // Deletes a course and its assessments in ONE save (never half-deleted).
@@ -173,6 +240,6 @@ const Courses = (function () {
 
   return {
     MAX_CODE_LENGTH, MAX_NAME_LENGTH, MAX_CREDITS, DEFAULT_CA_WEIGHT, DEFAULT_EXAM_WEIGHT,
-    validate, getForYear, getById, countAssessments, create, update, remove,
+    validate, validateExam, getForYear, getById, countAssessments, create, update, updateExam, setCaMode, remove,
   };
 })();

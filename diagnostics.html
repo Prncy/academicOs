@@ -68,6 +68,7 @@
   <script src="js/programs.js"></script>
   <script src="js/courses.js"></script>
   <script src="js/assessments.js"></script>
+  <script src="js/calculations.js"></script>
 
   <!-- The self-check itself. -->
   <script>
@@ -148,6 +149,22 @@
         if (!Assessments.validate({ title: "A", score: "", maxScore: "0", weight: "", date: "" }, "x", "test", null).maxScore) throw new Error("max 0 accepted");
         if (!Assessments.validate({ title: "A", score: "", maxScore: "20", weight: "", date: "2026-02-30" }, "x", "test", null).date) throw new Error("2026-02-30 accepted");
         return "validation OK";
+      });
+      check("Calculations loaded", function () {
+        if (typeof Calculations === "undefined") throw new Error("Calculations is missing");
+      });
+      check("Calculations example (hand-calculated, saves nothing)", function () {
+        var course = { caWeight: 40, examWeight: 60, caMode: "pooled", examScore: 45, examMax: 60 };
+        var work = [
+          { score: 15, maxScore: 20, weight: null },
+          { score: 18, maxScore: 20, weight: null },
+          { score: 32, maxScore: 40, weight: null }
+        ];
+        var result = Calculations.finalResult(course, work);
+        if (result.caScore !== 32.5) throw new Error("CA should be 32.5 but is " + result.caScore);
+        if (result.examScore !== 45) throw new Error("exam should be 45 but is " + result.examScore);
+        if (result.percent !== 77.5) throw new Error("final should be 77.5 but is " + result.percent);
+        return "CA 32.5 + exam 45 = 77.5";
       });
       check("Greeting", function () { return Utils.getGreeting(); });
       check("Pop-up (dialog) support", function () {

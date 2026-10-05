@@ -470,3 +470,26 @@ a.btn-primary { display: inline-block; text-decoration: none; text-align: center
 .assessment-title { font-weight: 700; overflow-wrap: anywhere; }
 .assessment-meta { color: var(--color-muted); font-size: 0.85rem; }
 .assessment-actions { display: flex; gap: var(--space-1); }
+
+/* ---------- 13. Course summary, CA method, exam ---------- */
+.summary-notes {
+  margin: 0 0 var(--space-2);
+  padding: 0 0 0 1.2rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+.summary-notes:empty { display: none; }
+.summary-notes li { margin-bottom: 0.2rem; }
+
+.ca-method { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); margin-bottom: var(--space-2); }
+.ca-method label { font-weight: 600; }
+.ca-method select {
+  font: inherit;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  max-width: 100%;
+}
+
+.exam-panel { margin-top: var(--space-3); }

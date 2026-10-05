@@ -85,7 +85,7 @@ One localStorage key (`academicos:data`) holds one object. Entities are flat arr
   programs:     [ { id, name, createdAt, updatedAt } ],
   years:        [ { id, programId, yearNumber, includeInGPA, completedOverride } ],
   courses:      [ { id, yearId, code, name, credits, caWeight, examWeight,
-                    caMode, examScore, examMax } ],
+                    caMode, examScore, examMax, examDate } ],
   assessments:  [ { id, courseId, type, title, score, maxScore, weight, date } ]
 }
 ```
@@ -133,10 +133,11 @@ All functions are pure. Notation: *p = score ÷ max × 100* for one assessment.
 1. **Assessment percentage:** `score / maxScore * 100`.
 2. **CA earned (marks out of the CA weight):**
    - *Pooled:* `(sum of scores / sum of maximums) * caWeight`.
-   - *Weighted:* sum of `(score / max) * weight` per assessment, where weights are marks within the CA weight (a warning shows if they do not add up to `caWeight`).
+   - *Weighted:* `sum(score / max * weight) / sum(weight)`, over marked items that have a weight, scaled to `caWeight`. **Clarified in Phase 7:** dividing by the weights of the marked items (instead of adding raw contributions) keeps the "current CA" meaningful while some work is unmarked. When every item is marked and the weights add up to `caWeight`, both versions give the same answer. A warning shows if the weights do not add up to `caWeight`.
    - **ASSUMPTION:** only assessments that have a score are counted for the "current CA".
 3. **Exam earned:** `(examScore / examMax) * examWeight`.
 4. **Final percentage:** CA earned plus exam earned; "pending" until the exam score exists.
+   - **Floating-point noise:** every result is cleaned to 9 decimal places (so 0.29 x 100 is exactly 29) before comparing or displaying. This is not display rounding.
 5. **Grade:** the first band, sorted highest minimum first, whose `minPercent` is at or below the final percentage (unrounded, per D6).
 6. **Year GPA:** over that year's courses that have a grade point. Credit-weighted `sum(gradePoint * credits) / sum(credits)` if every included course has credits; otherwise the plain average.
 7. **Overall GPA:** the same formula over all courses in years with `includeInGPA = true` (courses pooled, not an average of year GPAs).

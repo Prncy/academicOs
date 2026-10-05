@@ -92,7 +92,7 @@ Homepage, then Program, then Year (expands inside the program page), then Course
 ### 3.6 CA and exam (Phase 7)
 - **FR-CA1** The student defines the CA/Exam split per course (e.g. 40/60).
 - **FR-CA2** **ASSUMPTION:** two CA modes per course. *Pooled:* total scores divided by total maximums. *Weighted:* each assessment carries its own weight in marks. Both are stored so either can be chosen without a data migration.
-- **FR-CA3** Exam score and exam maximum are entered per course.
+- **FR-CA3** Exam score and exam maximum are entered per course, plus an optional exam date (`YYYY-MM-DD`, years 2000 to 2100). The score may be left blank until the exam is marked.
 
 ### 3.7 Grading system (Phase 8)
 - **FR-G1** Editable grading table (grade, minimum percentage, grade point), with the PRD defaults (A 80 = 4.0, B+ 75 = 3.5, B 70 = 3.0, C+ 65 = 2.5, C 60 = 2.0).
@@ -177,4 +177,4 @@ These ASSUMPTIONS are built as written unless the project owner changes them bef
 | D3 | Year "completed" | Automatic with manual override (FR-Y5) |
 | D4 | Fails, retakes, supplementary exams | Not supported in v1; F is just a grade band |
 | D5 | JSON export and import | Included in Phase 11 (FR-B1) |
-| D6 | Rounding at grade boundaries | Grade lookup uses the unrounded percentage; display shows 1 decimal |
+| D6 | Rounding at grade boundaries | Grade lookup uses the unrounded percentage (after removing floating-point noise below 1e-9); display shows 1 decimal |

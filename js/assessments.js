@@ -48,12 +48,7 @@ const Assessments = (function () {
 
   // Is this text a REAL calendar date like 2026-02-28? ("2026-02-30" is not.)
   function isValidDate(text) {
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
-    if (!match) return false;
-    const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
-    if (year < MIN_YEAR || year > MAX_YEAR) return false;
-    const date = new Date(Date.UTC(year, month - 1, day));
-    return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+    return Utils.isValidDate(text, MIN_YEAR, MAX_YEAR);
   }
 
   /* ---------- Validation ---------- */
